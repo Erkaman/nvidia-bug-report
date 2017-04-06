@@ -1,0 +1,38 @@
+!!NVfp5.0
+OPTION NV_shader_storage_buffer;
+OPTION NV_bindless_texture;
+ STORAGE sbo_buf0[] = { program.storage[0] };
+TEMP R0, R1, R2;
+TEMP RC;
+SHORT TEMP HC;
+OUTPUT result_color0 = result.color;
+MOV.F R1.xyz, {0, 0, 0, 0}.x;
+MOV.F R2.xyz, {1, 0, 0, 0}.x;
+MOV.U R1.w, {0, 0, 0, 0}.x;
+LDB.U32 R0.x, sbo_buf0[0];
+REP.S ;
+SNE.U R0.z, R0.x, {0xfffffffe, 0, 0, 0}.x;
+SNE.U R0.y, R0.x, {0xfffffffd, 0, 0, 0}.x;
+SNE.U R0.x, R0, {0xffffffff, 0, 0, 0};
+AND.U R0.x, -R0, -R0.y;
+AND.U R0.x, R0, -R0.z;
+SEQ.U.CC HC.x, R0, {0, 0, 0, 0};
+BRK (NE.x);
+MUL.F32 R2.xyz, R2, {0.5, 0, 0, 0}.x;
+ADD.F32 R0.xyz, R2, R1;
+SGE.F32 R0.xyz, {0.5, 0.361000001, 0, 0}.xyxw, R0;
+TRUNC.U R0.xyz, R0;
+I2F.U R0.yzw, R0.xxyz;
+DP3.F32 R0.x, R0.yzww, {1, 2, 4, 0};
+MUL.S R1.w, R1, {32, 0, 0, 0}.x;
+MOV.U R1.w, R1;
+TRUNC.U R2.w, R0.x;
+LDB.U32 R0.x, sbo_buf0[R1.w];
+ADD.U R1.w, R0.x, R2;
+MUL.S R0.x, R1.w, {32, 0, 0, 0};
+MOV.U R0.x, R0;
+MAD.F32 R1.xyz, R2, R0.yzww, R1;
+LDB.U32 R0.x, sbo_buf0[R0.x];
+ENDREP;
+MOV.F result_color0, {0, 0.200000003, 1, 0}.xyxz;
+END

@@ -1,0 +1,3 @@
+!!NVvp5.0
+OPTION NV_bindless_texture;
+ END
